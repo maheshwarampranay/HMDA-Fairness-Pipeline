@@ -69,49 +69,22 @@ def load_sample():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load sample dataset: {str(e)}")
 
+from app.hmda_default_data import get_hmda_source_of_truth_analysis
+
 @app.get("/api/default-hmda-analysis", response_model=AnalysisResponse)
 @app.get("/api/hmda-analysis", response_model=AnalysisResponse)
 @app.get("/api/default-adult-analysis", response_model=AnalysisResponse)
 @app.get("/api/adult-analysis", response_model=AnalysisResponse)
 def get_default_hmda_analysis(model_type: str = "baseline"):
     """
-    Returns default fairness audit and subgroup analysis for HMDA Home Loan Dataset.
+    Returns source-of-truth fairness audit and subgroup analysis for HMDA Home Loan Dataset.
     """
     try:
-        file_id, meta = load_benchmark_dataset()
-        df = get_dataframe(file_id)
-        
-        pred_col = "pred_mitigated" if model_type == "mitigated" else "pred_baseline"
-        prob_col = "prob_mitigated" if model_type == "mitigated" else "prob_baseline"
-        model_name = "HMDA Mortgage Classifier (Exponentiated Gradient - Race Mitigated)" if model_type == "mitigated" else "HMDA Mortgage Classifier (XGBoost Baseline)"
-        
-        if pred_col not in df.columns:
-            pred_col = meta["suggested_pred"] or df.columns[1]
-        if prob_col not in df.columns:
-            prob_col = meta.get("suggested_prob")
-
-        target_col = "target" if "target" in df.columns else meta["suggested_target"]
-        protected_cols = [c for c in ["derived_race", "derived_sex", "derived_ethnicity", "applicant_age", "state_code"] if c in df.columns]
-
-        req = AnalysisRequest(
-            file_id=file_id,
-            model_name=model_name,
-            target_col=target_col,
-            pred_col=pred_col,
-            prob_col=prob_col,
-            protected_cols=protected_cols,
-            reference_groups={
-                "derived_race": "White",
-                "derived_sex": "Male",
-                "derived_ethnicity": "Not Hispanic or Latino",
-                "applicant_age": "35-44",
-                "state_code": "CA"
-            },
-            risk_tier="strict"
-        )
-        return run_analysis(req)
+        data = get_hmda_source_of_truth_analysis(model_type)
+        return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch HMDA analysis: {str(e)}")
+
 
 
 
