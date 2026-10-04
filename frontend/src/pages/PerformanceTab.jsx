@@ -37,15 +37,18 @@ export default function PerformanceTab({ analysisData }) {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: '1fr 1fr',
             gap: '16px',
-            textAlign: 'center'
+            textAlign: 'center',
+            maxWidth: '650px',
+            margin: '0 auto'
           }}>
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '16px', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700', textTransform: 'uppercase' }}>
+            {/* Top-Left: True Positives (TP) - Green */}
+            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '20px', borderRadius: '8px' }}>
+              <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: '700', textTransform: 'uppercase' }}>
                 True Positives (TP)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#16a34a', marginTop: '4px' }}>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#16a34a', marginTop: '4px' }}>
                 {cm.tp.toLocaleString()}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
@@ -53,11 +56,12 @@ export default function PerformanceTab({ analysisData }) {
               </div>
             </div>
 
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '16px', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#dc2626', fontWeight: '700', textTransform: 'uppercase' }}>
+            {/* Top-Right: False Positives (FP) - Red */}
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '20px', borderRadius: '8px' }}>
+              <div style={{ fontSize: '12px', color: '#dc2626', fontWeight: '700', textTransform: 'uppercase' }}>
                 False Positives (FP)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#dc2626', marginTop: '4px' }}>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#dc2626', marginTop: '4px' }}>
                 {cm.fp.toLocaleString()}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
@@ -65,11 +69,12 @@ export default function PerformanceTab({ analysisData }) {
               </div>
             </div>
 
-            <div style={{ background: '#fffbeb', border: '1px solid #fde68a', padding: '16px', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#d97706', fontWeight: '700', textTransform: 'uppercase' }}>
+            {/* Bottom-Left: False Negatives (FN) - Red */}
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '20px', borderRadius: '8px' }}>
+              <div style={{ fontSize: '12px', color: '#dc2626', fontWeight: '700', textTransform: 'uppercase' }}>
                 False Negatives (FN)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#d97706', marginTop: '4px' }}>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#dc2626', marginTop: '4px' }}>
                 {cm.fn.toLocaleString()}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
@@ -77,11 +82,12 @@ export default function PerformanceTab({ analysisData }) {
               </div>
             </div>
 
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '16px', borderRadius: '8px' }}>
-              <div style={{ fontSize: '11px', color: '#475569', fontWeight: '700', textTransform: 'uppercase' }}>
+            {/* Bottom-Right: True Negatives (TN) - Green */}
+            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '20px', borderRadius: '8px' }}>
+              <div style={{ fontSize: '12px', color: '#16a34a', fontWeight: '700', textTransform: 'uppercase' }}>
                 True Negatives (TN)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: '800', color: '#334155', marginTop: '4px' }}>
+              <div style={{ fontSize: '26px', fontWeight: '800', color: '#16a34a', marginTop: '4px' }}>
                 {cm.tn.toLocaleString()}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>

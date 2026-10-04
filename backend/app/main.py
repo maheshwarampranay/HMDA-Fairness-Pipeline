@@ -81,6 +81,8 @@ def get_default_hmda_analysis(model_type: str = "baseline"):
     """
     try:
         data = get_hmda_source_of_truth_analysis(model_type)
+        if "analysis_id" in data:
+            ANALYSIS_RESULTS[data["analysis_id"]] = data
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to fetch HMDA analysis: {str(e)}")
@@ -164,7 +166,12 @@ def run_analysis(req: AnalysisRequest):
 def get_html_report(analysis_id: str):
     """Downloads HTML report."""
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis ID not found.")
+        if analysis_id == "hmda-notebook-audit-2025-001":
+            ANALYSIS_RESULTS[analysis_id] = get_hmda_source_of_truth_analysis("baseline")
+        elif analysis_id == "hmda-notebook-audit-2025-002":
+            ANALYSIS_RESULTS[analysis_id] = get_hmda_source_of_truth_analysis("mitigated")
+        else:
+            raise HTTPException(status_code=404, detail="Analysis ID not found.")
     html_content = generate_html_report(ANALYSIS_RESULTS[analysis_id])
     return Response(content=html_content, media_type="text/html")
 
@@ -172,7 +179,12 @@ def get_html_report(analysis_id: str):
 def get_pdf_report(analysis_id: str):
     """Downloads PDF report."""
     if analysis_id not in ANALYSIS_RESULTS:
-        raise HTTPException(status_code=404, detail="Analysis ID not found.")
+        if analysis_id == "hmda-notebook-audit-2025-001":
+            ANALYSIS_RESULTS[analysis_id] = get_hmda_source_of_truth_analysis("baseline")
+        elif analysis_id == "hmda-notebook-audit-2025-002":
+            ANALYSIS_RESULTS[analysis_id] = get_hmda_source_of_truth_analysis("mitigated")
+        else:
+            raise HTTPException(status_code=404, detail="Analysis ID not found.")
     pdf_bytes = generate_pdf_report(ANALYSIS_RESULTS[analysis_id])
     return Response(
         content=pdf_bytes,

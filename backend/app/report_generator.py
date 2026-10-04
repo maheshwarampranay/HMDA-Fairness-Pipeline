@@ -159,7 +159,7 @@ HTML_REPORT_TEMPLATE = """
       </div>
       <div class="card">
         <div class="card-label">ROC-AUC</div>
-        <div class="card-value">{{ (data.performance.roc_auc * 100) | round(2) }}%</div>
+        <div class="card-value">{% if data.performance.roc_auc %}{{ (data.performance.roc_auc * 100) | round(2) }}%{% else %}N/A{% endif %}</div>
       </div>
     </div>
   </div>
@@ -258,9 +258,10 @@ def generate_pdf_report(analysis_data: Dict[str, Any]) -> bytes:
         h2_style = ParagraphStyle('H2', parent=styles['Heading2'], fontSize=12, textColor=colors.HexColor('#006a4e'), spaceBefore=10)
         body_style = ParagraphStyle('Body', parent=styles['Normal'], fontSize=9, leading=12)
 
+        risk_tier_str = str(analysis_data.get('risk_tier', 'standard')).upper()
         story.append(Paragraph("<b>LLOYDS BANKING GROUP</b>", subtitle_style))
         story.append(Paragraph("Fairness & Bias Audit Executive Report", title_style))
-        story.append(Paragraph(f"Model: <b>{analysis_data.get('model_name')}</b> | Risk Tier: <b>{analysis_data.get('risk_tier').upper()}</b> | Status: <b>{analysis_data.get('overall_status')}</b>", body_style))
+        story.append(Paragraph(f"Model: <b>{analysis_data.get('model_name')}</b> | Risk Tier: <b>{risk_tier_str}</b> | Status: <b>{analysis_data.get('overall_status')}</b>", body_style))
         story.append(Spacer(1, 10))
         story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor('#006a4e')))
         story.append(Spacer(1, 15))
@@ -268,10 +269,12 @@ def generate_pdf_report(analysis_data: Dict[str, Any]) -> bytes:
         # Model Performance Table
         story.append(Paragraph("1. Model Performance Overview", h2_style))
         perf = analysis_data.get("performance", {})
+        roc_val = perf.get('roc_auc')
+        roc_str = f"{roc_val * 100:.1f}%" if roc_val else "N/A"
         perf_data = [
             ["Metric", "Value", "Metric", "Value"],
             ["Accuracy", f"{perf.get('accuracy', 0)*100:.1f}%", "Precision", f"{perf.get('precision', 0)*100:.1f}%"],
-            ["Recall (TPR)", f"{perf.get('recall', 0)*100:.1f}%", "ROC-AUC", f"{perf.get('roc_auc', 0)*100:.1f}%"],
+            ["Recall (TPR)", f"{perf.get('recall', 0)*100:.1f}%", "ROC-AUC", roc_str],
             ["Specificity", f"{perf.get('specificity', 0)*100:.1f}%", "Total Samples", str(analysis_data.get("total_samples", 0))]
         ]
         t1 = Table(perf_data, colWidths=[120, 120, 120, 120])
