@@ -34,6 +34,15 @@ app.add_middleware(
 # Global store for completed analyses
 ANALYSIS_RESULTS: Dict[str, Dict[str, Any]] = {}
 
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "service": "HMDA Fairness Pipeline Backend API",
+        "docs": "/docs",
+        "health": "/api/health"
+    }
+
 @app.get("/api/health")
 def health_check():
     return {"status": "ok", "service": "HMDA Fairness Pipeline Backend"}
