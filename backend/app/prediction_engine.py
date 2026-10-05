@@ -11,8 +11,6 @@ from sklearn.compose import ColumnTransformer
 from xgboost import XGBClassifier
 from fairlearn.postprocessing import ThresholdOptimizer
 
-DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "preprocessed-hmda.csv")
-
 CATEGORICAL_FEATURES = [
     "derived_dwelling_category",
     "loan_purpose",
@@ -44,6 +42,24 @@ _ENGINE_CACHE = {}
 # In-memory store for human audit validations
 HUMAN_VALIDATIONS: Dict[str, Dict[str, Any]] = {}
 
+def find_dataset_path():
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "data", "preprocessed-hmda.csv"),
+        os.path.join(os.path.dirname(__file__), "..", "data", "preprocessed-hmda.csv"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "data", "preprocessed-hmda.csv"),
+        os.path.join(os.getcwd(), "backend", "app", "data", "preprocessed-hmda.csv"),
+        os.path.join(os.getcwd(), "app", "data", "preprocessed-hmda.csv"),
+        os.path.join(os.getcwd(), "data", "preprocessed-hmda.csv"),
+        "/opt/render/project/src/backend/app/data/preprocessed-hmda.csv",
+        "/opt/render/project/src/data/preprocessed-hmda.csv",
+    ]
+    for p in candidates:
+        abs_p = os.path.abspath(p)
+        if os.path.exists(abs_p):
+            print(f"[Prediction Engine] Found dataset at: {abs_p}")
+            return abs_p
+    raise FileNotFoundError(f"HMDA preprocessed dataset not found in any candidate path.")
+
 def get_prediction_engine():
     """Returns singleton cached prediction engine with trained models and test data queue."""
     if _ENGINE_CACHE:
@@ -52,10 +68,7 @@ def get_prediction_engine():
     print("[Prediction Engine] Initializing HMDA XGBoost and ThresholdOptimizer pipeline...")
     t0 = time.time()
     
-    csv_path = os.path.abspath(DATA_PATH)
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"HMDA preprocessed dataset not found at {csv_path}")
-        
+    csv_path = find_dataset_path()
     df = pd.read_csv(csv_path)
     
     X = df[MODEL_FEATURES].copy()

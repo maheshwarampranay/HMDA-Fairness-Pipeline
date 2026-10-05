@@ -7,9 +7,24 @@ from typing import Dict, List, Tuple, Any, Optional
 # In-memory session data storage
 DATA_SETS: Dict[str, pd.DataFrame] = {}
 
-BENCHMARK_DATA_PATH = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), "..", "..", "data", "hmda_benchmark.csv")
-)
+def find_benchmark_path():
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "data", "hmda_benchmark.csv"),
+        os.path.join(os.path.dirname(__file__), "..", "data", "hmda_benchmark.csv"),
+        os.path.join(os.path.dirname(__file__), "..", "..", "data", "hmda_benchmark.csv"),
+        os.path.join(os.getcwd(), "backend", "app", "data", "hmda_benchmark.csv"),
+        os.path.join(os.getcwd(), "app", "data", "hmda_benchmark.csv"),
+        os.path.join(os.getcwd(), "data", "hmda_benchmark.csv"),
+        "/opt/render/project/src/backend/app/data/hmda_benchmark.csv",
+        "/opt/render/project/src/data/hmda_benchmark.csv",
+    ]
+    for p in candidates:
+        abs_p = os.path.abspath(p)
+        if os.path.exists(abs_p):
+            return abs_p
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "data", "hmda_benchmark.csv"))
+
+BENCHMARK_DATA_PATH = find_benchmark_path()
 
 def store_dataframe(df: pd.DataFrame, filename: str) -> Tuple[str, Dict[str, Any]]:
     """
