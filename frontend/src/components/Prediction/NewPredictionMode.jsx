@@ -40,7 +40,8 @@ export default function NewPredictionMode() {
       setResult(res);
     } catch (err) {
       console.error('Failed to execute new prediction:', err);
-      setError('Failed to compute model predictions. Please check input values.');
+      const detail = err.response?.data?.detail || err.message || 'Failed to compute model predictions.';
+      setError(`Server Error: ${detail}`);
     } finally {
       setLoading(false);
     }

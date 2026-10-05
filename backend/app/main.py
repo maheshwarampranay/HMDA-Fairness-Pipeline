@@ -34,6 +34,19 @@ app.add_middleware(
 # Global store for completed analyses
 ANALYSIS_RESULTS: Dict[str, Dict[str, Any]] = {}
 
+@app.on_event("startup")
+def startup_event():
+    """Pre-warms HMDA Fairness analysis and Prediction Engine on server boot."""
+    try:
+        from app.hmda_default_data import get_hmda_source_of_truth_analysis
+        from app.prediction_engine import get_prediction_engine
+        ANALYSIS_RESULTS["hmda-notebook-audit-2025-001"] = get_hmda_source_of_truth_analysis("baseline")
+        ANALYSIS_RESULTS["hmda-notebook-audit-2025-002"] = get_hmda_source_of_truth_analysis("mitigated")
+        get_prediction_engine()
+        print("[Startup] HMDA Analysis & Prediction Engine pre-warmed successfully!")
+    except Exception as e:
+        print(f"[Startup Warning] Failed to pre-warm Prediction Engine: {e}")
+
 @app.get("/")
 def root():
     return {
