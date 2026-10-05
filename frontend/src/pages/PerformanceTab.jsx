@@ -13,13 +13,12 @@ export default function PerformanceTab({ analysisData }) {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
       {/* 1. Overall Performance Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '14px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '14px', marginBottom: '24px' }}>
         <StatCard label="Accuracy" value={`${(performance.accuracy * 100).toFixed(1)}%`} icon={Target} color="#006a4e" />
         <StatCard label="Precision" value={`${(performance.precision * 100).toFixed(1)}%`} icon={CheckCircle2} color="#2563eb" />
         <StatCard label="Recall (TPR)" value={`${(performance.recall * 100).toFixed(1)}%`} icon={Activity} color="#d97706" />
         <StatCard label="F1 Score" value={`${(performance.f1_score * 100).toFixed(1)}%`} icon={BarChart2} color="#7c3aed" />
         <StatCard label="ROC-AUC" value={performance.roc_auc ? `${(performance.roc_auc * 100).toFixed(1)}%` : 'N/A'} icon={Shield} color="#059669" />
-        <StatCard label="Specificity" value={`${(performance.specificity * 100).toFixed(1)}%`} icon={AlertTriangle} color="#64748b" />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', marginBottom: '24px' }}>

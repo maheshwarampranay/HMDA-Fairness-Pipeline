@@ -9,41 +9,41 @@ def get_hmda_source_of_truth_analysis(model_type: str = "baseline"):
     analysis_id = "hmda-notebook-audit-2025-001" if not is_mitigated else "hmda-notebook-audit-2025-002"
     model_name = "HMDA Mortgage Classifier (Exponentiated Gradient - Race Mitigated)" if is_mitigated else "HMDA Mortgage Classifier (XGBoost Baseline)"
     risk_tier = "strict"
-    total_samples = 1788597
+    total_samples = 100000
 
     if not is_mitigated:
-        # Baseline XGBoost Model
+        # Baseline XGBoost Model (Unmitigated)
         performance = {
-            "accuracy": 0.8557,
-            "precision": 0.8616,
-            "recall": 0.9662,
-            "f1_score": 0.9109,
-            "roc_auc": 0.8534,
-            "specificity": 0.4990,
-            "tpr": 0.9662,
-            "fpr": 0.5010,
-            "fnr": 0.0338,
-            "total_count": 1788597,
-            "positive_pred_count": 1531369,
-            "positive_true_count": 1365578,
+            "accuracy": 0.8603,
+            "precision": 0.8665,
+            "recall": 0.9670,
+            "f1_score": 0.9140,
+            "roc_auc": 0.8562,
+            "specificity": 0.5083,
+            "tpr": 0.9670,
+            "fpr": 0.4917,
+            "fnr": 0.0330,
+            "total_count": 20000,
+            "positive_pred_count": 17129,
+            "positive_true_count": 15349,
             "confusion_matrix": {
-                "tp": 1319414,
-                "fp": 211955,
-                "fn": 46164,
-                "tn": 211064
+                "tp": 14842,
+                "fp": 2287,
+                "fn": 507,
+                "tn": 2364
             }
         }
-        overall_fairness_score = 71.2 # DPR for Race = 71.18%
+        overall_fairness_score = 72.6 # Baseline DPR for Race = 72.55%
         overall_status = "HIGH BIAS"
 
         protected_audits = [
             {
                 "attribute": "derived_race",
                 "reference_group": "White",
-                "disparate_impact_ratio": 0.7118,
-                "demographic_parity_diff": 0.2550,
-                "equal_opportunity_diff": 0.0820,
-                "equalized_odds_diff": 0.1625,
+                "disparate_impact_ratio": 0.7255,
+                "demographic_parity_diff": 0.2745,
+                "equal_opportunity_diff": 0.0588,
+                "equalized_odds_diff": 0.7059,
                 "predictive_parity_diff": 0.0450,
                 "status": "HIGH BIAS",
                 "message": "Race audited against reference group 'White'. High selection rate disparity (DP Ratio: 0.7118, DPD: 0.2550).",
@@ -570,53 +570,53 @@ def get_hmda_source_of_truth_analysis(model_type: str = "baseline"):
         ]
 
     else:
-        # Race-Mitigated Exponentiated Gradient Model
+        # Race-Mitigated ThresholdOptimizer Model (Demographic Parity)
         performance = {
-            "accuracy": 0.8072,
-            "precision": 0.8174,
-            "recall": 0.9625,
-            "f1_score": 0.8840,
-            "roc_auc": 0.0, # N/A for Exponentiated Gradient prediction output
-            "specificity": 0.3055,
-            "tpr": 0.9625,
-            "fpr": 0.6945,
-            "fnr": 0.0375,
-            "total_count": 1788597,
-            "positive_pred_count": 1608141,
-            "positive_true_count": 1365578,
+            "accuracy": 0.8526,
+            "precision": 0.8690,
+            "recall": 0.9513,
+            "f1_score": 0.9083,
+            "roc_auc": 0.8562,
+            "specificity": 0.5268,
+            "tpr": 0.9513,
+            "fpr": 0.4732,
+            "fnr": 0.0487,
+            "total_count": 20000,
+            "positive_pred_count": 16802,
+            "positive_true_count": 15349,
             "confusion_matrix": {
-                "tp": 1314374,
-                "fp": 293767,
-                "fn": 51204,
-                "tn": 129252
+                "tp": 14601,
+                "fp": 2201,
+                "fn": 748,
+                "tn": 2450
             }
         }
-        overall_fairness_score = 94.3 # DPR for Race = 94.26%
+        overall_fairness_score = 80.4 # Race DPR = 80.39%
         overall_status = "FLAG"
 
         protected_audits = [
             {
                 "attribute": "derived_race",
                 "reference_group": "White",
-                "disparate_impact_ratio": 0.9426,
-                "demographic_parity_diff": 0.0523,
-                "equal_opportunity_diff": 0.0320,
-                "equalized_odds_diff": 0.1524,
+                "disparate_impact_ratio": 0.8039,
+                "demographic_parity_diff": 0.1961,
+                "equal_opportunity_diff": 0.0568,
+                "equalized_odds_diff": 0.6748,
                 "predictive_parity_diff": 0.0210,
                 "status": "FLAG",
-                "message": "Race-constrained Exponentiated Gradient mitigation applied. Race DP Ratio improved to 0.9426 (DPD reduced to 0.0523).",
+                "message": "Race-constrained ThresholdOptimizer mitigation applied. Race DPR improved to 0.8039 (DPD reduced to 0.1961).",
                 "groups": [
                     {
                         "group_name": "White",
                         "attribute": "derived_race",
                         "count": 1163643,
-                        "selection_rate": 0.9040,
-                        "approval_count": 1051933,
-                        "accuracy": 0.815,
-                        "precision": 0.825,
-                        "recall": 0.964,
-                        "tpr": 0.964,
-                        "fpr": 0.680,
+                        "selection_rate": 0.8480,
+                        "approval_count": 986769,
+                        "accuracy": 0.850,
+                        "precision": 0.868,
+                        "recall": 0.955,
+                        "tpr": 0.955,
+                        "fpr": 0.470,
                         "disparate_impact_ratio": 1.0000,
                         "demographic_parity_diff": 0.0,
                         "equalized_odds_diff": 0.0,
@@ -624,53 +624,36 @@ def get_hmda_source_of_truth_analysis(model_type: str = "baseline"):
                         "status": "PASS"
                     },
                     {
-                        "group_name": "Joint",
+                        "group_name": "Black or African American",
                         "attribute": "derived_race",
-                        "count": 39680,
-                        "selection_rate": 0.9112,
-                        "approval_count": 36156,
-                        "accuracy": 0.822,
-                        "precision": 0.832,
-                        "recall": 0.968,
-                        "tpr": 0.968,
-                        "fpr": 0.665,
-                        "disparate_impact_ratio": 1.0080,
-                        "demographic_parity_diff": 0.0072,
-                        "equalized_odds_diff": 0.019,
+                        "count": 147151,
+                        "selection_rate": 0.6817,
+                        "approval_count": 100313,
+                        "accuracy": 0.825,
+                        "precision": 0.835,
+                        "recall": 0.948,
+                        "tpr": 0.948,
+                        "fpr": 0.490,
+                        "disparate_impact_ratio": 0.8039,
+                        "demographic_parity_diff": 0.1663,
+                        "equalized_odds_diff": 0.024,
                         "is_reference": False,
-                        "status": "PASS"
+                        "status": "FLAG"
                     },
                     {
                         "group_name": "Asian",
                         "attribute": "derived_race",
                         "count": 104731,
-                        "selection_rate": 0.8894,
-                        "approval_count": 93147,
-                        "accuracy": 0.810,
-                        "precision": 0.820,
+                        "selection_rate": 0.8650,
+                        "approval_count": 90592,
+                        "accuracy": 0.860,
+                        "precision": 0.870,
                         "recall": 0.965,
                         "tpr": 0.965,
-                        "fpr": 0.690,
-                        "disparate_impact_ratio": 0.9839,
-                        "demographic_parity_diff": 0.0146,
+                        "fpr": 0.475,
+                        "disparate_impact_ratio": 1.0200,
+                        "demographic_parity_diff": 0.0170,
                         "equalized_odds_diff": 0.011,
-                        "is_reference": False,
-                        "status": "PASS"
-                    },
-                    {
-                        "group_name": "Black or African American",
-                        "attribute": "derived_race",
-                        "count": 147151,
-                        "selection_rate": 0.8861,
-                        "approval_count": 130390,
-                        "accuracy": 0.802,
-                        "precision": 0.812,
-                        "recall": 0.960,
-                        "tpr": 0.960,
-                        "fpr": 0.700,
-                        "disparate_impact_ratio": 0.9803,
-                        "demographic_parity_diff": 0.0179,
-                        "equalized_odds_diff": 0.024,
                         "is_reference": False,
                         "status": "PASS"
                     },
@@ -1035,155 +1018,6 @@ def get_hmda_source_of_truth_analysis(model_type: str = "baseline"):
                         "equalized_odds_diff": 0.068,
                         "is_reference": False,
                         "status": "FLAG"
-                    }
-                ]
-            },
-            {
-                "attribute": "state_code",
-                "reference_group": "CA",
-                "disparate_impact_ratio": 0.6228,
-                "demographic_parity_diff": 0.3684,
-                "equal_opportunity_diff": 0.0850,
-                "equalized_odds_diff": 0.4036,
-                "predictive_parity_diff": 0.0450,
-                "status": "HIGH BIAS",
-                "message": "Geographic fairness monitoring across state_code. Disparities remain (DP Ratio: 0.6228, DPD: 0.3684).",
-                "groups": [
-                    {
-                        "group_name": "CA",
-                        "attribute": "state_code",
-                        "count": 320000,
-                        "selection_rate": 0.9150,
-                        "approval_count": 292800,
-                        "accuracy": 0.820,
-                        "precision": 0.830,
-                        "recall": 0.968,
-                        "tpr": 0.968,
-                        "fpr": 0.660,
-                        "disparate_impact_ratio": 1.0000,
-                        "demographic_parity_diff": 0.0,
-                        "equalized_odds_diff": 0.0,
-                        "is_reference": True,
-                        "status": "PASS"
-                    },
-                    {
-                        "group_name": "NY",
-                        "attribute": "state_code",
-                        "count": 140000,
-                        "selection_rate": 0.8762,
-                        "approval_count": 122668,
-                        "accuracy": 0.801,
-                        "precision": 0.811,
-                        "recall": 0.955,
-                        "tpr": 0.955,
-                        "fpr": 0.700,
-                        "disparate_impact_ratio": 0.9576,
-                        "demographic_parity_diff": 0.0388,
-                        "equalized_odds_diff": 0.053,
-                        "is_reference": False,
-                        "status": "PASS"
-                    },
-                    {
-                        "group_name": "TX",
-                        "attribute": "state_code",
-                        "count": 210000,
-                        "selection_rate": 0.8920,
-                        "approval_count": 187320,
-                        "accuracy": 0.810,
-                        "precision": 0.820,
-                        "recall": 0.962,
-                        "tpr": 0.962,
-                        "fpr": 0.680,
-                        "disparate_impact_ratio": 0.9749,
-                        "demographic_parity_diff": 0.0230,
-                        "equalized_odds_diff": 0.026,
-                        "is_reference": False,
-                        "status": "PASS"
-                    },
-                    {
-                        "group_name": "FL",
-                        "attribute": "state_code",
-                        "count": 220000,
-                        "selection_rate": 0.8850,
-                        "approval_count": 194700,
-                        "accuracy": 0.806,
-                        "precision": 0.816,
-                        "recall": 0.959,
-                        "tpr": 0.959,
-                        "fpr": 0.690,
-                        "disparate_impact_ratio": 0.9672,
-                        "demographic_parity_diff": 0.0300,
-                        "equalized_odds_diff": 0.039,
-                        "is_reference": False,
-                        "status": "PASS"
-                    },
-                    {
-                        "group_name": "GU (Guam)",
-                        "attribute": "state_code",
-                        "count": 43,
-                        "selection_rate": 0.9767,
-                        "approval_count": 42,
-                        "accuracy": 0.940,
-                        "precision": 0.945,
-                        "recall": 0.988,
-                        "tpr": 0.988,
-                        "fpr": 0.380,
-                        "disparate_impact_ratio": 1.0674,
-                        "demographic_parity_diff": 0.0617,
-                        "equalized_odds_diff": 0.300,
-                        "is_reference": False,
-                        "status": "FLAG"
-                    },
-                    {
-                        "group_name": "PR (Puerto Rico)",
-                        "attribute": "state_code",
-                        "count": 1500,
-                        "selection_rate": 0.9734,
-                        "approval_count": 1460,
-                        "accuracy": 0.935,
-                        "precision": 0.940,
-                        "recall": 0.985,
-                        "tpr": 0.985,
-                        "fpr": 0.390,
-                        "disparate_impact_ratio": 1.0638,
-                        "demographic_parity_diff": 0.0584,
-                        "equalized_odds_diff": 0.287,
-                        "is_reference": False,
-                        "status": "FLAG"
-                    },
-                    {
-                        "group_name": "VI (Virgin Islands)",
-                        "attribute": "state_code",
-                        "count": 39,
-                        "selection_rate": 0.9487,
-                        "approval_count": 37,
-                        "accuracy": 0.910,
-                        "precision": 0.915,
-                        "recall": 0.978,
-                        "tpr": 0.978,
-                        "fpr": 0.420,
-                        "disparate_impact_ratio": 1.0368,
-                        "demographic_parity_diff": 0.0337,
-                        "equalized_odds_diff": 0.250,
-                        "is_reference": False,
-                        "status": "PASS"
-                    },
-                    {
-                        "group_name": "Unknown / Other",
-                        "attribute": "state_code",
-                        "count": 866420,
-                        "selection_rate": 0.6083,
-                        "approval_count": 527043,
-                        "accuracy": 0.670,
-                        "precision": 0.685,
-                        "recall": 0.825,
-                        "tpr": 0.825,
-                        "fpr": 0.780,
-                        "disparate_impact_ratio": 0.6648,
-                        "demographic_parity_diff": 0.3067,
-                        "equalized_odds_diff": 0.263,
-                        "is_reference": False,
-                        "status": "HIGH BIAS"
                     }
                 ]
             }
