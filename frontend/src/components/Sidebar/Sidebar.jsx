@@ -7,14 +7,15 @@ import {
   Users,
   FileText,
   ChevronRight,
-  Activity
+  Activity,
+  Target
 } from 'lucide-react';
 
 const navItems = [
   { id: 'setup',     label: 'Setup & Upload',     icon: UploadCloud },
   { id: 'dashboard', label: 'Dashboard',          icon: LayoutDashboard },
   { id: 'metrics',   label: 'Fairness Metrics',   icon: ShieldCheck },
-  { id: 'subgroups', label: 'Subgroup Analysis',  icon: Users },
+  { id: 'prediction', label: 'Prediction',        icon: Target },
   { id: 'reports',   label: 'Report',             icon: FileText },
 ];
 

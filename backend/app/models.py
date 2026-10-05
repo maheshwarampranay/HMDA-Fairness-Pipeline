@@ -106,3 +106,28 @@ class AnalysisResponse(BaseModel):
     subgroup_analysis: List[SubgroupMetric]
     tradeoff_analysis: List[TradeoffPoint]
     optimal_threshold: float
+
+class NewPredictionRequest(BaseModel):
+    derived_dwelling_category: str = "Single Family (1-4 Units)"
+    loan_purpose: str = "Home Purchase"
+    conforming_loan_limit: str = "C"
+    occupancy_type: str = "Principal residence"
+    loan_amount: float = 300000.0
+    loan_to_value_ratio: float = 80.0
+    loan_term: float = 360.0
+    property_value: float = 375000.0
+    income: float = 95000.0
+    debt_to_income_ratio: float = 32.0
+    derived_race: Optional[str] = "White"
+    derived_ethnicity: Optional[str] = "Not Hispanic or Latino"
+    derived_sex: Optional[str] = "Male"
+    applicant_age: Optional[str] = "35-44"
+
+class HumanValidationRequest(BaseModel):
+    record_id: str
+    baseline_prediction: str
+    race_threshold_prediction: str
+    human_decision: str # Approve, Deny, Refer for Further Investigation
+    human_reason: str
+    is_new_prediction: bool = False
+

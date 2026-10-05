@@ -1,13 +1,13 @@
 """
 Source-of-truth executed HMDA Fairness Analysis notebook results.
-Provides exact baseline XGBoost and Race-mitigated Exponentiated Gradient metrics.
+Provides exact baseline XGBoost and Race-mitigated Threshold Optimization metrics.
 """
 
 def get_hmda_source_of_truth_analysis(model_type: str = "baseline"):
     is_mitigated = (model_type == "mitigated")
     
     analysis_id = "hmda-notebook-audit-2025-001" if not is_mitigated else "hmda-notebook-audit-2025-002"
-    model_name = "HMDA Mortgage Classifier (Exponentiated Gradient - Race Mitigated)" if is_mitigated else "HMDA Mortgage Classifier (XGBoost Baseline)"
+    model_name = "HMDA Mortgage Classifier (Threshold Optimization - Race Mitigated)" if is_mitigated else "HMDA Mortgage Classifier (XGBoost Baseline)"
     risk_tier = "strict"
     total_samples = 100000
 

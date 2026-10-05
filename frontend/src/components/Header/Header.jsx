@@ -63,14 +63,7 @@ export default function Header({ analysisData, modelType, onToggleModelType }) {
           </div>
         )}
 
-        <div>
-          <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>
-            Risk Tier
-          </div>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: 'var(--color-text-secondary)', textTransform: 'capitalize' }}>
-            {analysisData.risk_tier}
-          </div>
-        </div>
+       
 
         <div>
           <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: '600', textTransform: 'uppercase' }}>

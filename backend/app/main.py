@@ -191,3 +191,58 @@ def get_pdf_report(analysis_id: str):
         media_type="application/pdf",
         headers={"Content-Disposition": f"attachment; filename=Fairness_Audit_Report_{analysis_id[:8]}.pdf"}
     )
+
+# ==========================================
+# PREDICTION & HUMAN VALIDATION API ROUTES
+# ==========================================
+from app.models import NewPredictionRequest, HumanValidationRequest
+from app.prediction_engine import (
+    get_test_summary,
+    get_test_queue,
+    get_test_record_detail,
+    predict_new_applicant,
+    save_human_validation
+)
+
+@app.get("/api/prediction/test-summary")
+def api_get_test_summary():
+    """Returns total test records, agreements, discrepancies, and discrepancy rate."""
+    try:
+        return get_test_summary()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch test summary: {str(e)}")
+
+@app.get("/api/prediction/test-queue")
+def api_get_test_queue(filter_type: str = "discrepancies"):
+    """Returns review queue of test dataset records with discrepancies."""
+    try:
+        return get_test_queue(filter_type=filter_type)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch test queue: {str(e)}")
+
+@app.get("/api/prediction/test-record/{record_id}")
+def api_get_test_record_detail(record_id: str):
+    """Returns detailed features, side-by-side decisions, SHAP and LIME for a test record."""
+    try:
+        return get_test_record_detail(record_id)
+    except ValueError as ve:
+        raise HTTPException(status_code=404, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to fetch test record detail: {str(e)}")
+
+@app.post("/api/prediction/predict-new")
+def api_predict_new(req: NewPredictionRequest):
+    """Predicts credit decision for a new manual applicant using Baseline XGBoost & Race ThresholdOptimizer."""
+    try:
+        return predict_new_applicant(req.dict())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate new prediction: {str(e)}")
+
+@app.post("/api/prediction/submit-validation")
+def api_submit_validation(req: HumanValidationRequest):
+    """Saves human review validation decision and mandatory reason into audit log."""
+    try:
+        return save_human_validation(req.dict())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to submit validation: {str(e)}")
+

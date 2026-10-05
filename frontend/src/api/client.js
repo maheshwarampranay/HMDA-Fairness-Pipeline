@@ -37,4 +37,30 @@ export const fetchDefaultHmdaAnalysis = async (modelType = 'baseline') => {
 
 export const fetchDefaultAdultAnalysis = fetchDefaultHmdaAnalysis;
 
+export const fetchTestSummary = async () => {
+  const response = await apiClient.get('/prediction/test-summary');
+  return response.data;
+};
+
+export const fetchTestQueue = async (filterType = 'discrepancies') => {
+  const response = await apiClient.get(`/prediction/test-queue?filter_type=${filterType}`);
+  return response.data;
+};
+
+export const fetchTestRecordDetail = async (recordId) => {
+  const response = await apiClient.get(`/prediction/test-record/${recordId}`);
+  return response.data;
+};
+
+export const predictNewApplicant = async (payload) => {
+  const response = await apiClient.post('/prediction/predict-new', payload);
+  return response.data;
+};
+
+export const submitHumanValidation = async (payload) => {
+  const response = await apiClient.post('/prediction/submit-validation', payload);
+  return response.data;
+};
+
+
 

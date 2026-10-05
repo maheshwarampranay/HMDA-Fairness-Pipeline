@@ -9,6 +9,7 @@ import PerformanceTab from './pages/PerformanceTab';
 import ProtectedFairnessTab from './pages/ProtectedFairnessTab';
 import SubgroupAnalysisTab from './pages/SubgroupAnalysisTab';
 import ReportTab from './pages/ReportTab';
+import PredictionTab from './pages/PredictionTab';
 import { fetchDefaultHmdaAnalysis } from './api/client';
 
 export default function App() {
@@ -38,6 +39,8 @@ export default function App() {
     setActiveView('dashboard');
   };
 
+  const isDefaultHmda = !!analysisData?.analysis_id?.startsWith('hmda-notebook-audit');
+
   const renderView = () => {
     if (loading && activeView !== 'setup') {
       return (
@@ -65,8 +68,8 @@ export default function App() {
         return <PerformanceTab analysisData={analysisData} />;
       case 'metrics':
         return <ProtectedFairnessTab analysisData={analysisData} />;
-      case 'subgroups':
-        return <SubgroupAnalysisTab analysisData={analysisData} />;
+      case 'prediction':
+        return <PredictionTab isDefaultHmda={isDefaultHmda} onResetToDefault={() => loadHmdaAnalysis('baseline')} />;
       case 'reports':
         return <ReportTab analysisData={analysisData} />;
       default:
@@ -86,7 +89,7 @@ export default function App() {
           <Header
             analysisData={analysisData}
             modelType={modelType}
-            onToggleModelType={setModelType}
+            onToggleModelType={(!isDefaultHmda || activeView === 'prediction') ? null : setModelType}
           />
         )}
         {renderView()}
