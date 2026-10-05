@@ -1,19 +1,29 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const getApiBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (envUrl) {
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl.replace(/\/$/, '')}/api`;
+  }
+  return 'http://localhost:8000/api';
+};
 
 export const apiClient = axios.create({
-  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+apiClient.interceptors.request.use((config) => {
+  config.baseURL = getApiBaseUrl();
+  return config;
+});
+
 export const uploadDataset = async (file) => {
   const formData = new FormData();
   formData.append('file', file);
-  // Use raw axios.post so browser automatically appends multipart boundary
-  const response = await axios.post(`${API_BASE_URL}/upload`, formData);
+  const baseUrl = getApiBaseUrl();
+  const response = await axios.post(`${baseUrl}/upload`, formData);
   return response.data;
 };
 
@@ -27,8 +37,8 @@ export const runFairnessAnalysis = async (payload) => {
   return response.data;
 };
 
-export const getReportHtmlUrl = (analysisId) => `${API_BASE_URL}/report/html/${analysisId}`;
-export const getReportPdfUrl = (analysisId) => `${API_BASE_URL}/report/pdf/${analysisId}`;
+export const getReportHtmlUrl = (analysisId) => `${getApiBaseUrl()}/report/html/${analysisId}`;
+export const getReportPdfUrl = (analysisId) => `${getApiBaseUrl()}/report/pdf/${analysisId}`;
 
 export const fetchDefaultHmdaAnalysis = async (modelType = 'baseline') => {
   const response = await apiClient.get(`/hmda-analysis?model_type=${modelType}`);
