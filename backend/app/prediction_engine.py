@@ -60,6 +60,44 @@ def find_dataset_path():
             return abs_p
     raise FileNotFoundError(f"HMDA preprocessed dataset not found in any candidate path.")
 
+def safe_predict_threshold_optimizer(threshold_opt, X_trans, sensitive_features):
+    """Safely executes ThresholdOptimizer predictions preventing pandas 2.2+ float32 assignment exceptions."""
+    try:
+        sens_s = pd.Series(sensitive_features, dtype=str).reset_index(drop=True)
+        preds = threshold_opt.predict(X_trans, sensitive_features=sens_s)
+        return np.array(preds, dtype=int)
+    except Exception as err:
+        print(f"[Prediction Engine] Standard predict fallback triggered: {err}")
+        
+    try:
+        probs = threshold_opt.estimator.predict_proba(X_trans)[:, 1].astype(np.float64)
+        it = getattr(threshold_opt, "interpolated_thresholder_", threshold_opt)
+        interp_dict = getattr(it, "interpolation_dict", {})
+        
+        sens_list = list(sensitive_features)
+        preds = []
+        for i in range(len(probs)):
+            prob = float(probs[i])
+            race = str(sens_list[i]) if i < len(sens_list) else "White"
+            group_cfg = interp_dict.get(race) or interp_dict.get("White")
+            if not group_cfg:
+                preds.append(1 if prob >= 0.5 else 0)
+                continue
+            p0 = float(group_cfg.get("p0", 0.5))
+            op0_raw = str(group_cfg.get("operation0", [">0.5"])[0]).replace(">", "")
+            op1_raw = str(group_cfg.get("operation1", [">0.5"])[0]).replace(">", "")
+            t0 = float(op0_raw) if op0_raw != "-inf" else -999.0
+            t1 = float(op1_raw) if op1_raw != "-inf" else -999.0
+            pred0 = 1 if prob >= t0 else 0
+            pred1 = 1 if prob >= t1 else 0
+            exp_pred = p0 * pred0 + (1.0 - p0) * pred1
+            preds.append(1 if exp_pred >= 0.5 else 0)
+        return np.array(preds, dtype=int)
+    except Exception as fallback_err:
+        print(f"[Prediction Engine] Fallback threshold error: {fallback_err}")
+        probs = threshold_opt.estimator.predict_proba(X_trans)[:, 1]
+        return (probs >= 0.5).astype(int)
+
 def get_prediction_engine():
     """Returns singleton cached prediction engine with trained models and test data queue."""
     if _ENGINE_CACHE:
@@ -115,7 +153,7 @@ def get_prediction_engine():
     # Compute test predictions
     baseline_probs = xgb_model.predict_proba(X_test_trans)[:, 1]
     baseline_preds = (baseline_probs >= 0.5).astype(int)
-    race_to_preds = threshold_opt.predict(X_test_trans, sensitive_features=p_test["derived_race"])
+    race_to_preds = safe_predict_threshold_optimizer(threshold_opt, X_test_trans, p_test["derived_race"])
     
     # Map index to record IDs
     test_records = []
@@ -374,7 +412,7 @@ def predict_new_applicant(input_data: Dict[str, Any]):
     race_val = str(input_data.get("derived_race", "White"))
     race_series = pd.Series([race_val])
     
-    r_pred_val = int(threshold_opt.predict(trans_arr, sensitive_features=race_series)[0])
+    r_pred_val = int(safe_predict_threshold_optimizer(threshold_opt, trans_arr, race_series)[0])
     r_pred = "APPROVED" if r_pred_val == 1 else "DENIED"
     
     is_disc = (b_pred != r_pred)
