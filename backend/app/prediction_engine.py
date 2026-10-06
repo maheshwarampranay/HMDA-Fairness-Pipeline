@@ -208,8 +208,26 @@ def generate_shap_explanations(
     explainer = engine["shap_explainer"]
     feature_names = engine["feature_names_out"]
     
-    shap_vals = explainer.shap_values(transformed_arr)[0]
-    base_val = float(explainer.expected_value) if hasattr(explainer, "expected_value") else 0.0
+    try:
+        exp_val = getattr(explainer, "expected_value", 0.0)
+        if isinstance(exp_val, (list, np.ndarray)):
+            base_val = float(exp_val[-1])
+        else:
+            base_val = float(exp_val)
+    except Exception:
+        base_val = 0.0
+
+    try:
+        shap_out = explainer.shap_values(transformed_arr)
+        if isinstance(shap_out, list):
+            shap_vals = np.array(shap_out[-1])
+        else:
+            shap_vals = np.array(shap_out)
+        if shap_vals.ndim > 1:
+            shap_vals = shap_vals[0]
+    except Exception as e:
+        print(f"[Prediction Engine] SHAP explanation warning: {e}")
+        shap_vals = np.zeros(len(feature_names))
     
     # Map transformed SHAP values back to original feature names
     feature_shap_map = {feat: 0.0 for feat in MODEL_FEATURES}
